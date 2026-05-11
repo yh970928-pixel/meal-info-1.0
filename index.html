@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 급식</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6ec;
+    --bg-card: #ffffff;
+    --bg-accent: #fff4d6;
+    --primary: #d97706;
+    --primary-dark: #b45309;
+    --text: #3d2817;
+    --text-soft: #7a5c3f;
+    --border: #e8d5b7;
+    --shadow: 0 8px 24px rgba(180, 130, 60, 0.12);
+    --shadow-hover: 0 12px 32px rgba(180, 130, 60, 0.2);
+    --success: #16a34a;
+    --error: #dc2626;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Gowun Dodum', '맑은 고딕', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(252, 211, 77, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 80% 90%, rgba(251, 191, 36, 0.18) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding: 12px;
+  }
+
+  h1 {
+    font-family: 'Gaegu', cursive;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  h1 .icon {
+    display: inline-block;
+    margin-right: 8px;
+    transform: translateY(-2px);
+  }
+
+  .subtitle {
+    color: var(--text-soft);
+    font-size: 1rem;
+  }
+
+  .date-bar {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--border);
+  }
+
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--border);
+    background: var(--bg-accent);
+    border-radius: 12px;
+    font-size: 1.4rem;
+    color: var(--primary-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-family: inherit;
+    font-weight: bold;
+  }
+
+  .nav-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  .nav-btn:active { transform: translateY(0); }
+
+  .date-input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  input[type="date"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-family: inherit;
+    background: var(--bg-accent);
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+  }
+
+  input[type="date"]:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .meal-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+    animation: slideIn 0.4s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .meal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 2px dashed var(--border);
+  }
+
+  .meal-type {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .calorie-badge {
+    background: var(--bg-accent);
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border: 1.5px solid var(--border);
+  }
+
+  .menu-list {
+    list-style: none;
+    margin-bottom: 20px;
+  }
+
+  .menu-list li {
+    padding: 8px 0;
+    font-size: 1.1rem;
+    color: var(--text);
+    border-bottom: 1px dotted var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .menu-list li:last-child { border-bottom: none; }
+
+  .menu-list li::before {
+    content: "•";
+    color: var(--primary);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .menu-name { flex: 1; }
+
+  .allergens {
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    background: var(--bg-accent);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: normal;
+  }
+
+  .nutrition-section {
+    background: var(--bg-accent);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  .nutrition-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+  }
+
+  .nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
+  .nutrition-item {
+    background: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .nutrition-item .label {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    display: block;
+  }
+
+  .nutrition-item .value {
+    font-weight: bold;
+    color: var(--primary-dark);
+  }
+
+  .legend {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-top: 20px;
+    border: 2px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-soft);
+  }
+
+  .legend-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+  }
+
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 4px 12px;
+  }
+
+  .state-msg {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 2px dashed var(--border);
+    color: var(--text-soft);
+  }
+
+  .state-msg .emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .state-msg.error { color: var(--error); }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .loading::after {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 2.2rem; }
+    .meal-card { padding: 20px; }
+    .meal-type { font-size: 1.5rem; }
+    .menu-list li { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span class="icon">🍱</span>오늘의 급식</h1>
+      <p class="subtitle">날짜를 선택하면 급식 정보를 확인할 수 있어요</p>
+    </header>
+
+    <div class="date-bar">
+      <button class="nav-btn" id="prevBtn" title="이전 날">‹</button>
+      <div class="date-input-wrap">
+        <input type="date" id="dateInput">
+      </div>
+      <button class="nav-btn" id="nextBtn" title="다음 날">›</button>
+    </div>
+
+    <div id="result"></div>
+
+    <div class="legend">
+      <div class="legend-title">알레르기 정보 안내</div>
+      <div class="legend-grid">
+        <div>1. 난류</div><div>2. 우유</div><div>3. 메밀</div>
+        <div>4. 땅콩</div><div>5. 대두</div><div>6. 밀</div>
+        <div>7. 고등어</div><div>8. 게</div><div>9. 새우</div>
+        <div>10. 돼지고기</div><div>11. 복숭아</div><div>12. 토마토</div>
+        <div>13. 아황산류</div><div>14. 호두</div><div>15. 닭고기</div>
+        <div>16. 쇠고기</div><div>17. 오징어</div><div>18. 조개류</div>
+        <div>19. 잣</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const SCHOOL_CODE = '7631121';
+  const OFFICE_CODE = 'J10';
+  const PROXY_PREFIX = 'https://corsproxy.io/?url=';
+
+  const dateInput = document.getElementById('dateInput');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const resultDiv = document.getElementById('result');
+
+  // 오늘 날짜로 초기화 (KST 기준)
+  function getKSTDate() {
+    const now = new Date();
+    const kstOffset = 9 * 60;
+    const localOffset = now.getTimezoneOffset();
+    const kst = new Date(now.getTime() + (kstOffset + localOffset) * 60000);
+    return kst.toISOString().split('T')[0];
+  }
+
+  dateInput.value = getKSTDate();
+
+  function formatDateForAPI(dateStr) {
+    return dateStr.replace(/-/g, '');
+  }
+
+  function formatDateKorean(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    const date = new Date(dateStr);
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    return `${y}년 ${parseInt(m)}월 ${parseInt(d)}일 (${days[date.getDay()]})`;
+  }
+
+  function shiftDate(days) {
+    const date = new Date(dateInput.value);
+    date.setDate(date.getDate() + days);
+    dateInput.value = date.toISOString().split('T')[0];
+    loadMeal();
+  }
+
+  prevBtn.addEventListener('click', () => shiftDate(-1));
+  nextBtn.addEventListener('click', () => shiftDate(1));
+  dateInput.addEventListener('change', loadMeal);
+
+  function showState(msg, isError = false, isLoading = false) {
+    const cls = isError ? 'state-msg error' : 'state-msg';
+    const emoji = isError ? '😥' : (isLoading ? '' : '🍽️');
+    if (isLoading) {
+      resultDiv.innerHTML = `<div class="${cls}"><div class="loading">${msg}</div></div>`;
+    } else {
+      resultDiv.innerHTML = `<div class="${cls}"><span class="emoji">${emoji}</span>${msg}</div>`;
+    }
+  }
+
+  // 메뉴 문자열에서 알레르기 번호 분리
+  function parseMenuItem(rawText) {
+    // 예: "김치찌개 (5.6.10.16)" -> name, allergens
+    const match = rawText.match(/^(.+?)\s*\(([\d.]+)\)\s*$/);
+    if (match) {
+      return {
+        name: match[1].trim(),
+        allergens: match[2].split('.').filter(x => x).join(', ')
+      };
+    }
+    return { name: rawText.trim(), allergens: '' };
+  }
+
+  // 영양정보 문자열 파싱
+  function parseNutrition(text) {
+    // 예: "탄수화물(g) : 100.5<br/>단백질(g) : 25.3<br/>..."
+    if (!text) return [];
+    return text.split(/<br\s*\/?>/)
+      .map(line => line.trim())
+      .filter(line => line)
+      .map(line => {
+        const parts = line.split(':').map(s => s.trim());
+        if (parts.length >= 2) {
+          return { label: parts[0], value: parts[1] };
+        }
+        return null;
+      })
+      .filter(x => x);
+  }
+
+  function mealTypeIcon(code, name) {
+    if (name.includes('조식') || code === '1') return '🌅';
+    if (name.includes('중식') || code === '2') return '☀️';
+    if (name.includes('석식') || code === '3') return '🌙';
+    if (name.includes('간식')) return '🍪';
+    return '🍴';
+  }
+
+  async function loadMeal() {
+    const dateValue = dateInput.value;
+    if (!dateValue) return;
+
+    showState('급식 정보를 불러오는 중...', false, true);
+
+    const apiUrl = `https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=${OFFICE_CODE}&SD_SCHUL_CODE=${SCHOOL_CODE}&MLSV_YMD=${formatDateForAPI(dateValue)}`;
+    const fetchUrl = PROXY_PREFIX + encodeURIComponent(apiUrl);
+
+    try {
+      const response = await fetch(fetchUrl);
+      if (!response.ok) throw new Error('네트워크 오류');
+      const xmlText = await response.text();
+
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, 'text/xml');
+
+      // 에러 응답 확인 (CODE INFO-200 = 데이터 없음)
+      const resultCode = xml.querySelector('RESULT CODE')?.textContent;
+      if (resultCode === 'INFO-200' || !xml.querySelector('row')) {
+        showState(`${formatDateKorean(dateValue)}에는<br>급식 정보가 없어요.`);
+        return;
+      }
+
+      if (resultCode && resultCode !== 'INFO-000') {
+        const msg = xml.querySelector('RESULT MESSAGE')?.textContent || '알 수 없는 오류';
+        showState('API 오류: ' + msg, true);
+        return;
+      }
+
+      const rows = xml.querySelectorAll('row');
+      renderMeals(rows, dateValue);
+
+    } catch (err) {
+      console.error(err);
+      showState('급식 정보를 가져오지 못했어요.<br>네트워크 상태를 확인해주세요.', true);
+    }
+  }
+
+  function renderMeals(rows, dateValue) {
+    let html = `<div style="text-align:center; color:var(--text-soft); margin-bottom:16px; font-size:1.05rem;">📅 ${formatDateKorean(dateValue)}</div>`;
+
+    rows.forEach(row => {
+      const mealName = row.querySelector('MMEAL_SC_NM')?.textContent || '식사';
+      const mealCode = row.querySelector('MMEAL_SC_CODE')?.textContent || '';
+      const dishRaw = row.querySelector('DDISH_NM')?.textContent || '';
+      const calInfo = row.querySelector('CAL_INFO')?.textContent || '';
+      const nutritionRaw = row.querySelector('NTR_INFO')?.textContent || '';
+
+      // 메뉴 파싱: <br/>로 구분
+      const menuItems = dishRaw.split(/<br\s*\/?>/)
+        .map(s => s.trim())
+        .filter(s => s)
+        .map(parseMenuItem);
+
+      const nutritionItems = parseNutrition(nutritionRaw);
+      const icon = mealTypeIcon(mealCode, mealName);
+
+      html += `
+        <div class="meal-card">
+          <div class="meal-header">
+            <div class="meal-type"><span>${icon}</span>${mealName}</div>
+            ${calInfo ? `<div class="calorie-badge">🔥 ${calInfo}</div>` : ''}
+          </div>
+          <ul class="menu-list">
+            ${menuItems.map(item => `
+              <li>
+                <span class="menu-name">${item.name}</span>
+                ${item.allergens ? `<span class="allergens">알레르기 ${item.allergens}</span>` : ''}
+              </li>
+            `).join('')}
+          </ul>
+          ${nutritionItems.length > 0 ? `
+            <div class="nutrition-section">
+              <div class="nutrition-title">📊 영양정보</div>
+              <div class="nutrition-grid">
+                ${nutritionItems.map(n => `
+                  <div class="nutrition-item">
+                    <span class="label">${n.label}</span>
+                    <span class="value">${n.value}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+
+    resultDiv.innerHTML = html;
+  }
+
+  // 초기 로드
+  loadMeal();
+</script>
+</body>
+</html>
